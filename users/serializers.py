@@ -1,9 +1,4 @@
-import os
-from urllib.request import urlopen
-
-from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
-from django.core.files.base import ContentFile
 from rest_framework import serializers
 
 from users.models import User
@@ -11,10 +6,6 @@ from users.models import User
 
 class UserCreateSerializer(serializers.ModelSerializer):
     """User model serializer."""
-
-    photo = serializers.ImageField(
-        required=False, use_url=True, allow_null=True
-    )
 
     class Meta:
         model = User
@@ -24,8 +15,6 @@ class UserCreateSerializer(serializers.ModelSerializer):
             "username",
             "first_name",
             "last_name",
-            "birth_date",
-            "photo",
         ]
         extra_kwargs = {
             "password": {
@@ -56,49 +45,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
                     "placeholder": "Last Name (optional)",
                 },
             },
-            "birth_date": {
-                "required": False,
-                "style": {
-                    "input_type": "date",
-                    "placeholder": "Birth date (optional)",
-                },
-            },
         }
-
-    def to_internal_value(self, data):
-        mutable_data = data.copy()
-        if "birth_date" in mutable_data and mutable_data["birth_date"] == "":
-            mutable_data["birth_date"] = None
-        if "photo" in mutable_data and mutable_data["photo"] == "":
-            mutable_data["photo"] = None
-        if (
-            "photo" in mutable_data
-            and isinstance(mutable_data["photo"], str)
-            and mutable_data["photo"].startswith("http")
-        ):
-            try:
-                response = urlopen(mutable_data["photo"])
-                file_name = os.path.basename(mutable_data["photo"])
-                mutable_data["photo"] = ContentFile(
-                    response.read(), name=file_name
-                )
-            except Exception:
-                raise serializers.ValidationError(
-                    {"photo": "Error downloading image."}
-                )
-        return super().to_internal_value(mutable_data)
-
-    def create(self, validated_data: dict) -> User:
-        return get_user_model().objects.create_user(**validated_data)
-
-    def update(self, instance: User, validated_data: dict) -> User:
-        if validated_data["photo"]:
-            if instance.photo:
-                old_name_photo = os.path.basename(instance.photo.name)
-                new_name_photo = validated_data["photo"].name
-                if old_name_photo == new_name_photo:
-                    validated_data.pop("photo")
-        return super().update(instance, validated_data)
 
 
 class UserManageSerializer(serializers.ModelSerializer):
@@ -113,8 +60,6 @@ class UserManageSerializer(serializers.ModelSerializer):
             "is_staff",
             "first_name",
             "last_name",
-            "birth_date",
-            "photo",
         ]
 
 
