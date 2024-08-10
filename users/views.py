@@ -2,12 +2,21 @@ from typing import Type
 
 from django.db.models import QuerySet
 from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.serializers import Serializer
 
 from users.models import User
 from users.serializers import UserManageSerializer, UserUpdateSerializer, \
     UserPasswordUpdateSerializer
+
+
+class UserCreateView(generics.CreateAPIView):
+    """
+    API endpoint that allows users to be created.
+    """
+
+    serializer_class = UserUpdateSerializer
+    permission_classes = (AllowAny,)
 
 
 class ManageUserView(generics.RetrieveUpdateDestroyAPIView):
