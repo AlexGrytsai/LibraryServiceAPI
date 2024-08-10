@@ -1,9 +1,5 @@
 from __future__ import annotations
 
-import os
-import uuid
-from datetime import date, timedelta
-
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.db import models
@@ -49,11 +45,6 @@ class UserManager(BaseUserManager):
         return self._create_user(email, password, **extra_fields)
 
 
-def create_custom_path_for_photo(instance: User, filename: str) -> str:
-    _, extension = os.path.splitext(filename)
-    return f"users/{instance.email}/{uuid.uuid4()}{extension}"
-
-
 class User(AbstractUser):
     """
     User model that uses email as the username.
@@ -73,21 +64,6 @@ class User(AbstractUser):
     # Use the custom UserManager.
     objects = UserManager()
 
-    birth_date = models.DateField(
-        null=True,
-        blank=True,
-        db_comment="Date of birth of the user.",
-        help_text="Date of birth of the user.",
-    )
-
-    photo = models.ImageField(
-        upload_to=create_custom_path_for_photo,
-        null=True,
-        blank=True,
-        db_comment="Photo of the user.",
-        help_text="Photo of the user.",
-    )
-
     @property
     def full_name(self):
         if self.first_name and self.last_name:
@@ -95,15 +71,6 @@ class User(AbstractUser):
         if self.username:
             return self.username
         return self.email
-
-    def clean(self):
-        if self.photo:
-            max_image_size = 2097152
-            if self.photo.size > max_image_size:
-                raise ValueError(
-                    f"Photo size should be less than "
-                    f"{max_image_size / 1024 / 1024}MB"
-                )
 
     def save(self, *args, **kwargs):
         self.clean()
@@ -122,15 +89,7 @@ class User(AbstractUser):
                 condition=Q(username__isnull=False),
                 name="unique_username",
                 violation_error_message="A user with that username already "
-                "exists.",
-            ),
-            models.CheckConstraint(
-                check=Q(birth_date__isnull=True)
-                | Q(birth_date__lte=date.today() - timedelta(days=365 * 13))
-                & Q(birth_date__gte=date.today() - timedelta(days=365 * 100)),
-                name="check_age",
-                violation_error_message="User must be at least 13 years old "
-                "and less than 100 years old.",
+                                        "exists.",
             ),
         ]
 
