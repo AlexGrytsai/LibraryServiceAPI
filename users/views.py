@@ -6,8 +6,12 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.serializers import Serializer
 
 from users.models import User
-from users.serializers import UserManageSerializer, UserUpdateSerializer, \
-    UserPasswordUpdateSerializer
+from users.serializers import (
+    UserManageSerializer,
+    UserUpdateSerializer,
+    UserPasswordUpdateSerializer,
+    UserCreateSerializer,
+)
 
 
 class UserCreateView(generics.CreateAPIView):
@@ -15,7 +19,7 @@ class UserCreateView(generics.CreateAPIView):
     API endpoint that allows users to be created.
     """
 
-    serializer_class = UserUpdateSerializer
+    serializer_class = UserCreateSerializer
     permission_classes = (AllowAny,)
 
 
@@ -29,10 +33,7 @@ class ManageUserView(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self) -> QuerySet:
         user = self.request.user
 
-        return (
-            User.objects.all()
-            .filter(id=user.id)
-        )
+        return User.objects.all().filter(id=user.id)
 
     def get_object(self) -> User:
         return self.request.user
@@ -53,5 +54,3 @@ class UserPasswordUpdateView(generics.UpdateAPIView):
 
     def get_object(self) -> User:
         return self.request.user
-
-# Create your views here.
