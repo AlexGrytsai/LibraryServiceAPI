@@ -18,7 +18,7 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth.views import LogoutView
-from django.urls import path
+from django.urls import path, include
 from debug_toolbar.toolbar import debug_toolbar_urls
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework_simplejwt.views import (
@@ -53,6 +53,7 @@ urlpatterns = (
             SpectacularSwaggerView.as_view(url_name="schema"),
             name="swagger-ui",
         ),
+        path("api/v1/customer/", include("customer.urls", namespace="customer")),
     ]
     + debug_toolbar_urls()
     + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
