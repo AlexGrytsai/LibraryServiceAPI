@@ -30,32 +30,34 @@ from rest_framework_simplejwt.views import (
 urlpatterns = (
     [
         path(
-            "api/v1/token/",
+            "api/v1/users/token/",
             TokenObtainPairView.as_view(),
             name="token_obtain_pair",
         ),
         path(
-            "api/v1/token/refresh/",
+            "api/v1/users/token/refresh/",
             TokenRefreshView.as_view(),
             name="token_refresh",
         ),
         path(
-            "api/v1/token/verify/",
+            "api/v1/users/token/verify/",
             TokenVerifyView.as_view(),
             name="token_verify",
         ),
         path(
-            "api/v1/token/logout/", LogoutView.as_view(), name="token_logout"
+            "api/v1/users/token/logout/",
+            LogoutView.as_view(),
+            name="token_logout",
         ),
-        path("api/v1/schema/", SpectacularAPIView.as_view(), name="schema"),
+        path(
+            "api/v1/doc/schema/", SpectacularAPIView.as_view(), name="schema"
+        ),
         path(
             "api/v1/doc/swagger/",
             SpectacularSwaggerView.as_view(url_name="schema"),
             name="swagger-ui",
         ),
-        path(
-            "api/v1/customer/", include("customer.urls", namespace="customer")
-        ),
+        path("api/v1/users/", include("users.urls", namespace="users")),
     ]
     + debug_toolbar_urls()
     + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
