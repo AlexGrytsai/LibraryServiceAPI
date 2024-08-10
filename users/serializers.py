@@ -66,24 +66,27 @@ class UserCreateSerializer(serializers.ModelSerializer):
         }
 
     def to_internal_value(self, data):
-        if "birth_date" in data and data["birth_date"] == "":
-            data["birth_date"] = None
-        if "photo" in data and data["photo"] == "":
-            data["photo"] = None
+        mutable_data = data.copy()
+        if "birth_date" in mutable_data and mutable_data["birth_date"] == "":
+            mutable_data["birth_date"] = None
+        if "photo" in mutable_data and mutable_data["photo"] == "":
+            mutable_data["photo"] = None
         if (
-            "photo" in data
-            and isinstance(data["photo"], str)
-            and data["photo"].startswith("http")
+            "photo" in mutable_data
+            and isinstance(mutable_data["photo"], str)
+            and mutable_data["photo"].startswith("http")
         ):
             try:
-                response = urlopen(data["photo"])
-                file_name = os.path.basename(data["photo"])
-                data["photo"] = ContentFile(response.read(), name=file_name)
+                response = urlopen(mutable_data["photo"])
+                file_name = os.path.basename(mutable_data["photo"])
+                mutable_data["photo"] = ContentFile(
+                    response.read(), name=file_name
+                )
             except Exception:
                 raise serializers.ValidationError(
                     {"photo": "Error downloading image."}
                 )
-        return super().to_internal_value(data)
+        return super().to_internal_value(mutable_data)
 
     def create(self, validated_data: dict) -> User:
         return get_user_model().objects.create_user(**validated_data)
