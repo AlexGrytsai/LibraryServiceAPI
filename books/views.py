@@ -5,7 +5,7 @@ from books.models import Book
 from books.serializers import BookSerializer, BookListSerializer
 
 
-class BookView(viewsets.ModelViewSet):
+class BookViewSet(viewsets.ModelViewSet):
 
     queryset = Book.objects.all()
 
@@ -22,4 +22,4 @@ class BookView(viewsets.ModelViewSet):
     def get_queryset(self):
         if self.action == "retrieve":
             return Book.objects.filter(id=self.kwargs["pk"])
-        return super(BookView, self).get_queryset()
+        return super(BookViewSet, self).get_queryset()
