@@ -58,7 +58,7 @@ urlpatterns = (
             name="swagger-ui",
         ),
         path("api/v1/users/", include("users.urls", namespace="users")),
-        path("api/v1/books/", include("books.urls", namespace="books")),
+        path("api/v1/", include("books.urls", namespace="books")),
     ]
     + debug_toolbar_urls()
     + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
